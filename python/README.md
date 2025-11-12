@@ -10,6 +10,7 @@ A complete Python port of the MATLAB toolkit for linear inversion of river longi
 - **Well-Documented**: NumPy-style docstrings throughout
 - **Type-Annotated**: Full type hints for IDE support
 - **Performance-Optimized**: Vectorized operations for efficiency
+- **DEM Integration**: Seamless integration with dem.py toolkit for direct DEM processing
 
 ## Installation
 
@@ -36,6 +37,43 @@ pip install -e .
 ```
 
 ## Quick Start
+
+### Option 1: Direct from DEM (recommended)
+
+```python
+# Process DEM and run inversion in one workflow
+from dem import Elevation, FilledElevation, FlowDirectionD8, Area
+from fluvial_inversion import (
+    prepare_inversion_data,
+    findm_slope_area,
+    calculate_chi,
+    invert_block_uplift
+)
+
+# Load and process DEM
+dem = Elevation(gdal_filename='my_dem.tif')
+filled_dem = FilledElevation(elevation=dem)
+flow_dir = FlowDirectionD8(flooded_dem=filled_dem)
+area_grid = Area(flow_direction=flow_dir)
+
+# Extract fluvial network
+data = prepare_inversion_data(
+    dem=filled_dem,
+    area=area_grid,
+    flow_direction=flow_dir,
+    outlet_location=(x_outlet, y_outlet),
+    min_drainage_area=1e6  # 1 km² threshold
+)
+
+# Run inversion workflow
+m, _, _, _ = findm_slope_area(data['slope_array'], data['area_array'])
+chi = calculate_chi(data['x'], data['y'], data['rec_array'], data['area_array'], m)
+Ustar, tstar, misfit = invert_block_uplift(chi, data['z'], gamma=1.0, q=10)
+```
+
+See `README_DEM_INTEGRATION.md` and `examples/dem_to_inversion_workflow.py` for details.
+
+### Option 2: From Pre-Processed Data
 
 ```python
 import numpy as np
@@ -71,6 +109,7 @@ print(f"Uplift rates: {Ustar}")
 ```
 fluvial_inversion/
 ├── __init__.py                        # Package initialization
+├── prepare_inversion_data.py          # DEM → inversion data wrapper
 ├── calculate_chi.py                   # Chi coordinate calculation
 ├── findm_slope_area.py               # m from slope-area
 ├── findm_linear_chi.py               # m from linear chi-z

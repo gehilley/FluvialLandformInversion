@@ -20,6 +20,7 @@ from .invert_parabola import invert_parabola
 from .invert_with_different_gamma import invert_with_different_gamma
 from .calibrate_k_total_uplift import calibrate_k_total_uplift
 from .bootstrap_invert_block_uplift import bootstrap_invert_block_uplift
+from .prepare_inversion_data import prepare_inversion_data, prepare_inversion_data_simple
 
 __all__ = [
     "calculate_chi",
@@ -32,4 +33,6 @@ __all__ = [
     "invert_with_different_gamma",
     "calibrate_k_total_uplift",
     "bootstrap_invert_block_uplift",
+    "prepare_inversion_data",
+    "prepare_inversion_data_simple",
 ]
