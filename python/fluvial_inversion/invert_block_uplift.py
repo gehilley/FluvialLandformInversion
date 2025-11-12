@@ -49,7 +49,9 @@ def invert_block_uplift(
         Time interval boundaries (q+1×1 array). First element is 0.
         Units match chi input.
     misfit : float
-        RMS misfit between data and model topography [L].
+        Misfit between data and model topography [L].
+        Calculated as: sqrt(sum(residuals²)) / (N-q)
+        Note: This differs from standard RMSE to match MATLAB implementation.
 
     Notes
     -----
@@ -161,10 +163,11 @@ def invert_block_uplift(
     Ustar = U_pri_star + np.linalg.solve(denom, nom)
     tstar = scaled_t_vec
 
-    # Calculate misfit (normalized RMS error)
+    # Calculate misfit (matches MATLAB formula exactly)
     model_z = Astar @ Ustar
     residuals = sorted_z - model_z
-    misfit = np.sqrt(np.sum(residuals**2) / (N - q))
+    # MATLAB: Misfit = 1/((N-q))*sqrt(sum((sorted_z - Astar*Ustar).^2))
+    misfit = np.sqrt(np.sum(residuals**2)) / (N - q)
 
     # Plotting
     if to_plot:

@@ -56,7 +56,8 @@ def invert_parabola(
     tstar : np.ndarray
         Time interval boundaries (q+1).
     misfit : float
-        RMS misfit [L].
+        Misfit [L]. Calculated as: sqrt(sum(residuals²)) / (N-3q)
+        Note: This differs from standard RMSE to match MATLAB implementation.
 
     Notes
     -----
@@ -214,10 +215,11 @@ def invert_parabola(
     Up = U_pri_star + np.linalg.solve(denom, nom)
     tstar = scaled_t_vec
 
-    # Calculate misfit
+    # Calculate misfit (matches MATLAB formula exactly)
     model_z = Ap @ Up
     residuals = nz_z - model_z
-    misfit = np.sqrt(np.sum(residuals**2) / (N - 3*q))
+    # MATLAB: Misfit = 1/((N-3*q))*sqrt(sum((nz_z - Ap*Up).^2))
+    misfit = np.sqrt(np.sum(residuals**2)) / (N - 3*q)
 
     # Plotting
     if to_plot:
